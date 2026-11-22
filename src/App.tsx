@@ -117,6 +117,14 @@ const REPO_URL = (() => {
   return "https://github.com/jherr/depth-of-field";
 })();
 
+const DECOR_CAPTIONS: Record<string, string> = {
+  living: "Aperçu : lampes à ~2 m et bibliothèque à ~4,5 m derrière le sujet",
+  office: "Aperçu : fenêtres à stores et cloisons à ~4,5 m derrière le sujet",
+  studio: "Aperçu : ampoules déco à ~2 m et fond sombre à ~4,5 m derrière le sujet",
+  window: "Aperçu : grande fenêtre à ~4,5 m derrière le sujet (contre-jour doux)",
+  church: "Aperçu : bougies à ~2 m et vitraux à ~4,5 m derrière le sujet",
+};
+
 const SYSTEMS = ["Metric", "Imperial"] as const;
 
 function clamp(value: number, min: number, max: number) {
@@ -992,7 +1000,7 @@ const cropFactor = isCustomSensor
           subject={subject as keyof typeof SUBJECTS}
           hudLabel={convertUnits(distanceToSubjectInInches, 0)}
           title={t.monitor}
-          caption={scene.palette.indoor ? t.monitorCaptionIndoor : t.monitorCaption}
+          caption={scene.palette.decor && scene.palette.decor !== "curtain" ? DECOR_CAPTIONS[scene.palette.decor] : scene.palette.indoor ? t.monitorCaptionIndoor : t.monitorCaption}
           palette={scene.palette}
           exposureDelta={exposureDelta}
           cast={cast}
@@ -1015,8 +1023,12 @@ const cropFactor = isCustomSensor
           <Text fontSize="sm" mb={1}>{t.lightScene}</Text>
           <Select size="sm" value={sceneId} onChange={(e) => selectScene(e.target.value)}
             bg={nativeSelectStyles.bg} color={nativeSelectStyles.color} borderColor={nativeSelectStyles.borderColor} iconColor={nativeSelectStyles.iconColor} sx={nativeSelectStyles.sx}>
-            {SCENES.map((sc) => (
-              <option key={sc.id} value={sc.id}>{t.scenes[sc.id]}</option>
+            {[false, true].map((indoor) => (
+              <optgroup key={String(indoor)} label={indoor ? "Intérieur" : "Extérieur"}>
+                {SCENES.filter((sc) => sc.palette.indoor === indoor).map((sc) => (
+                  <option key={sc.id} value={sc.id}>{t.scenes[sc.id] ?? DICT.fr.scenes[sc.id] ?? sc.id}</option>
+                ))}
+              </optgroup>
             ))}
           </Select>
 

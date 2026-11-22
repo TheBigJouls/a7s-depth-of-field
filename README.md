@@ -13,6 +13,7 @@ Adapté du [Depth Of Field Simulator](https://github.com/jherr/depth-of-field) d
   - Sony FE (GM, G, Zeiss), Sigma DG DN, Tamron, Samyang, Zeiss Batis.
   - Objectifs APS-C : la sélection bascule automatiquement le boîtier en Super 35.
 - **Profils Log** : A7S II en S-Log2 / S-Log3 dès ISO 1600 ; A7S III en S-Log3 / S-Log2 dès ISO 640 (double ISO natif 640 / 12 800).
+- **Scènes d'intérieur** : salon (tungstène), bureau (néons), studio interview (LED 5600 K), pièce éclairée par une fenêtre, église (bougies et vitraux), en plus de la salle de mariage et de la salle de fête. Chacune a son décor et ses sources de lumière dans l'aperçu écran.
 - **ISO** jusqu'à 409 600, vidéo PAL 25p et filtre ND8 par défaut, interface en français.
 - **Préréglages** adaptés : 24-105 à 24 / 50 / 105 mm, A7S II + EF 24-105 adapté, 35 mm f/1.4 sur gimbal, Super 35 + Sigma 18-35, etc.
 
