@@ -3,6 +3,7 @@ import { Box, Text, useColorModeValue } from "@chakra-ui/react";
 import { SUBJECTS } from "./PhotographyGraphic";
 import type { ScenePalette } from "./lighting";
 import { PersonIllustration } from "./PersonIllustration";
+import { IndoorDecor } from "./IndoorDecor";
 
 // Simulated "what the photographer sees on the camera monitor".
 // World units are inches, distances measured from the camera.
@@ -118,10 +119,18 @@ export default function MonitorView({
   const lightScale = scaleAt(lightsDist);
   const lightBlur = blurAt(lightsDist);
   const lights: { x: number; y: number }[] = [];
-  const step = Math.max(14, lightsHalfW / 30);
-  for (let x = -lightsHalfW; x <= lightsHalfW && lights.length < 160; x += step) {
-    const sag = 10 * Math.cos((x / 110) * Math.PI);
-    lights.push({ x, y: -30 + sag });
+  if (P.spots) {
+    // sources ponctuelles (lampes, ampoules, bougies), légèrement décalées
+    const sp = P.spots;
+    let k = 0;
+    for (let x = -lightsHalfW + sp.step / 2; x <= lightsHalfW && lights.length < 160; x += sp.step, k++)
+      lights.push({ x, y: sp.y + ((k * 7) % 3) * (sp.r > 2 ? 4 : 2.5) });
+  } else {
+    const step = Math.max(14, lightsHalfW / 30);
+    for (let x = -lightsHalfW; x <= lightsHalfW && lights.length < 160; x += step) {
+      const sag = 10 * Math.cos((x / 110) * Math.PI);
+      lights.push({ x, y: -30 + sag });
+    }
   }
 
   const subjectBlur = stdDev(d);
@@ -260,16 +269,7 @@ export default function MonitorView({
             <g filter="url(#mon-b-trees)">
               <g transform={layer(treesDist)}>
                 {P.indoor
-                  ? trees.map((x, i) => (
-                      <rect
-                        key={i}
-                        x={x - 35}
-                        y={EYE_HEIGHT - 300}
-                        width={36}
-                        height={300}
-                        fill={P.trees[i % 3]}
-                      />
-                    ))
+                  ? <IndoorDecor P={P} modules={trees} floor={EYE_HEIGHT} halfW={treeHalfW} />
                   : trees.map((x, i) => {
                       const h = 150 + ((i * 37) % 60);
                       return (
@@ -287,7 +287,7 @@ export default function MonitorView({
               {lights.map((l, i) => {
                 const cx = VB_W / 2 + l.x * lightScale;
                 const cy = VB_H / 2 + l.y * lightScale;
-                const sharpR = Math.max(1.2 * lightScale, 0.6);
+                const sharpR = Math.max((P.spots?.r ?? 1.2) * lightScale, 0.6);
                 const r = Math.max(sharpR, lightBlur / 2);
                 const opacity =
                   Math.max(0.25, Math.min(1, (sharpR / r) * 2.2)) * P.lightsOpacity;
@@ -312,7 +312,7 @@ export default function MonitorView({
             </g>
 
             {/* Foreground branch at the left edge */}
-            <g filter="url(#mon-b-branch)">
+            {P.decor !== "church" && <g filter="url(#mon-b-branch)">
               <g transform={layer(branchDist)}>
                 <g transform={`translate(${-halfWidthAt(branchDist)} ${-frameHeightAt(branchDist) * 0.18}) scale(${frameHeightAt(branchDist) / 60})`}>
                   <path d="M-4 18 Q8 10 16 4" stroke={P.indoor ? "#7a6a52" : "#3b2f22"} strokeWidth={1.2} fill="none" />
@@ -321,7 +321,7 @@ export default function MonitorView({
                   ))}
                 </g>
               </g>
-            </g>
+            </g>}
 
           </g>
             {noise > 0.01 && (

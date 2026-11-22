@@ -12,7 +12,12 @@ export type ScenePalette = {
   leaves: [string, string];
   lights: string[]; // bokeh colours
   lightsOpacity: number; // how visible the string lights are in this scene
+  decor?: Decor; // décor du fond en intérieur (rideau par défaut)
+  spots?: { y: number; step: number; r: number }; // sources ponctuelles (lampes, bougies) au lieu d'une guirlande
+  wall?: string; // couleur secondaire du décor (étagères, cadres, fenêtres…)
 };
+
+export type Decor = "curtain" | "living" | "office" | "studio" | "window" | "church";
 
 export type LightScene = {
   id: string;
@@ -159,6 +164,109 @@ export const SCENES: LightScene[] = [
       leaves: ["#b8a6d9", "#d8ccef"],
       lights: ["#ff4fd8", "#41e2ff", "#7dff6a", "#ffd34d", "#a46bff"],
       lightsOpacity: 1,
+    },
+  },
+  {
+    id: "living",
+    ev: 6,
+    kelvin: 2900,
+    palette: {
+      indoor: true,
+      decor: "living",
+      skyTop: "#8a7a66",
+      skyBottom: "#b8a58a",
+      groundTop: "#8c6a4a",
+      groundBottom: "#5e4430",
+      hills: "#000",
+      trees: ["#6b4a32", "#7d5a3e", "#5c3f2b"],
+      trunk: "#000",
+      leaves: ["#3f6b3a", "#4f7d45"],
+      lights: ["#ffd9a0"],
+      lightsOpacity: 1,
+      spots: { y: 4, step: 95, r: 5 },
+      wall: "#c9b79c",
+    },
+  },
+  {
+    id: "office",
+    ev: 8,
+    kelvin: 4000,
+    palette: {
+      indoor: true,
+      decor: "office",
+      skyTop: "#cfd3d4",
+      skyBottom: "#e4e6e4",
+      groundTop: "#8f9395",
+      groundBottom: "#6a6e70",
+      hills: "#000",
+      trees: ["#dfe8ec", "#b9c1c4", "#e9ecea"],
+      trunk: "#000",
+      leaves: ["#3f7a45", "#4f8d52"],
+      lights: ["#f4f7ff"],
+      lightsOpacity: 0,
+      wall: "#9aa3a8",
+    },
+  },
+  {
+    id: "studio",
+    ev: 8,
+    kelvin: 5600,
+    palette: {
+      indoor: true,
+      decor: "studio",
+      skyTop: "#2b2d33",
+      skyBottom: "#3c3f46",
+      groundTop: "#3a3633",
+      groundBottom: "#242120",
+      hills: "#000",
+      trees: ["#34373e", "#2f3238", "#383b42"],
+      trunk: "#000",
+      leaves: ["#365e3a", "#447048"],
+      lights: ["#ffb764"],
+      lightsOpacity: 1,
+      spots: { y: -14, step: 42, r: 2.2 },
+      wall: "#5a4a3a",
+    },
+  },
+  {
+    id: "window",
+    ev: 10,
+    kelvin: 5800,
+    palette: {
+      indoor: true,
+      decor: "window",
+      skyTop: "#d9d4cb",
+      skyBottom: "#ebe6dd",
+      groundTop: "#b39878",
+      groundBottom: "#86704f",
+      hills: "#000",
+      trees: ["#eef5fb", "#f4ede0", "#e6dccb"],
+      trunk: "#000",
+      leaves: ["#4a7d42", "#5d9150"],
+      lights: ["#ffe7c0"],
+      lightsOpacity: 0,
+      wall: "#7da35e",
+    },
+  },
+  {
+    id: "church",
+    ev: 6,
+    kelvin: 3400,
+    palette: {
+      indoor: true,
+      decor: "church",
+      skyTop: "#7a6f62",
+      skyBottom: "#a39684",
+      groundTop: "#7c6d5a",
+      groundBottom: "#4f4436",
+      hills: "#000",
+      trees: ["#9c8e7a", "#8d7f6b", "#a89a85"],
+      trunk: "#000",
+      leaves: ["#d9cfb8", "#eee6d2"],
+      lights: ["#ffcf7a"],
+      lightsOpacity: 1,
+      spots: { y: 10, step: 30, r: 1.4 },
+      wall: "#4b6ea8",
     },
   },
 ];

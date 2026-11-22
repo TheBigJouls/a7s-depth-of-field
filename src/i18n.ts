@@ -529,7 +529,7 @@ export const DICT: Record<Lang, Dict> = {
     lutPreview: "LUT preview (Rec.709)",
     logTip: "Log: from ISO {x} · expose about +1 stop brighter (ETTR)",
     logGeneric: "Log (flat)",
-    scenes: {summer: "Summer – midday sun", spring: "Spring", autumn: "Autumn", winter: "Winter – snow", overcast: "Overcast", golden: "Golden hour", blue: "Blue hour", night: "Night – string lights", hall: "Wedding hall", disco: "Hall – party/disco lights"},
+    scenes: {summer: "Summer – midday sun", spring: "Spring", autumn: "Autumn", winter: "Winter – snow", overcast: "Overcast", golden: "Golden hour", blue: "Blue hour", night: "Night – string lights", hall: "Wedding hall", disco: "Hall – party/disco lights", living: "Living room – tungsten lamps", office: "Office – fluorescent lights", studio: "Interview studio – 5600 K LED", window: "Room – window light", church: "Church – candles & stained glass"},
     wbModes: {auto: "Auto (AWB)", daylight: "Daylight", cloudy: "Cloudy", tungsten: "Tungsten", kelvin: "Kelvin (manual)"},
     categories: {
       macro: "Macro / Product",
@@ -793,7 +793,7 @@ export const DICT: Record<Lang, Dict> = {
     lutPreview: "Aperçu LUT (Rec.709)",
     logTip: "Log : dès ISO {x} · exposer env. +1 IL plus clair (ETTR)",
     logGeneric: "Log (plat)",
-    scenes: {summer: "Été – soleil de midi", spring: "Printemps", autumn: "Automne", winter: "Hiver – neige", overcast: "Couvert", golden: "Heure dorée", blue: "Heure bleue", night: "Nuit – guirlande lumineuse", hall: "Salle de mariage", disco: "Salle – fête/lumières disco"},
+    scenes: {summer: "Été – soleil de midi", spring: "Printemps", autumn: "Automne", winter: "Hiver – neige", overcast: "Couvert", golden: "Heure dorée", blue: "Heure bleue", night: "Nuit – guirlande lumineuse", hall: "Salle de mariage", disco: "Salle – fête/lumières disco", living: "Salon – lampes tungstène", office: "Bureau – néons", studio: "Studio interview – LED 5600 K", window: "Pièce – lumière de fenêtre", church: "Église – bougies et vitraux"},
     wbModes: {auto: "Auto (AWB)", daylight: "Lumière du jour", cloudy: "Nuageux", tungsten: "Tungstène", kelvin: "Kelvin (manuel)"},
     categories: {
       macro: "Macro / Produit",
