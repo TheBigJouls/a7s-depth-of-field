@@ -1,15 +1,11 @@
 {
-  "name": "depth-of-field-t1",
+  "name": "a7s-depth-of-field",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "Interactive depth-of-field visualizer and calculator",
+  "description": "Simulateur de profondeur de champ pour Sony A7S II / A7S III",
   "license": "MIT",
-  "author": "Jack Herrington",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jherr/depth-of-field.git"
-  },
+  "author": "Adapté de Jack Herrington (MIT)",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -36,7 +32,6 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
-    "playwright": "^1.59.1",
     "tsx": "^4.21.0",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
