@@ -1201,7 +1201,7 @@ export function fill(template: string, x: string | number, y?: string | number) 
   return template.replace("{x}", String(x)).replace("{y}", String(y ?? ""));
 }
 
-const STORAGE_KEY = "dof-lang";
+const STORAGE_KEY = "a7s-dof-lang";
 
 export function loadLang(): Lang {
   try {
@@ -1210,13 +1210,7 @@ export function loadLang(): Lang {
   } catch {
     /* storage unavailable */
   }
-  try {
-    const nav = navigator.language.slice(0, 2).toLowerCase();
-    if (nav in DICT) return nav as Lang;
-  } catch {
-    /* navigator unavailable */
-  }
-  return "en";
+  return "fr";
 }
 
 export function saveLang(lang: Lang) {
