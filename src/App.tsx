@@ -29,7 +29,18 @@ import { TbRuler, TbAperture, TbZoomIn, TbUser } from "react-icons/tb";
 import { FiGithub, FiCamera, FiSun, FiMoon } from "react-icons/fi";
 import { toImperial, toMetric } from "./utils/units";
 import { buildNativeSelectStyles } from "./selectStyles";
-import { BRANDS, CAMERAS, lensesForCamera, maxApertureAt, logProfilesFor } from "./gear";
+import {
+  BRANDS,
+  CAMERAS,
+  lensesForCamera,
+  maxApertureAt,
+  logProfilesFor,
+  FF,
+  S35,
+  FF_CROP_11,
+  DEFAULT_CAMERA_ID,
+  DEFAULT_LENS_ID,
+} from "./gear";
 import { DICT, LANGUAGES, fill, loadLang, saveLang, type Lang } from "./i18n";
 
 import PhotographyGraphic, { SUBJECTS } from "./PhotographyGraphic";
@@ -61,132 +72,50 @@ import {
 import Telephoto from "./assets/100-400.png";
 import Fisheye from "./assets/fishey.png";
 
+// Modes capteur des A7S II / A7S III (capteur 35,6 × 23,8 mm, 12 Mpx)
 const CIRCLES_OF_CONFUSION: Record<
   string,
-  {
-    coc: number;
-    sensorHeight: number;
-    cropFactor: number;
-  }
+  { coc: number; sensorHeight: number; cropFactor: number }
 > = {
-  Webcam: {
-    coc: 0.002,
-    sensorHeight: 3.6,
-    cropFactor: 9.6 
-  },
-  Smartphone: {
-    coc: 0.002,
-    sensorHeight: 7.3,
-    cropFactor: 6.1
-  },
-  "35mm (full frame)": {
-    coc: 0.029,
-    sensorHeight: 24,
-    cropFactor: 1.0
-  },
-  "APS-C": {
-    coc: 0.019,
-    sensorHeight: 15.6,
-    cropFactor: 1.52
-  },
-  "APS-C (Canon)": {
-    coc: 0.018,
-    sensorHeight: 14.9,
-    cropFactor: 1.6
-  },
-  "1-inch": { coc: 0.011, sensorHeight: 8.8, cropFactor: 2.7 },
-  "1/1.1-inch": { coc: 0.0097, sensorHeight: 10.2, cropFactor: 3.0 },
-  "1/1.3-inch": { coc: 0.008, sensorHeight: 7.2, cropFactor: 3.6 },
-  "1/1.5-inch": { coc: 0.0073, sensorHeight: 6.4, cropFactor: 4.0 },
-  "1/2-inch": { coc: 0.0054, sensorHeight: 4.8, cropFactor: 5.4 },
-  "Micro Four Thirds": {
-    coc: 0.015,
-    sensorHeight: 13,
-    cropFactor: 2.0
-  },
-  "6x6 (Medium Format)": {
-    coc: 0.02,
-    sensorHeight: 60,
-    cropFactor: 0.55
-  },
-  "6x7 (Medium Format)": {
-    coc: 0.025,
-    sensorHeight: 70,
-    cropFactor: 0.47
-  },
+  [FF]: { coc: 0.029, sensorHeight: 23.8, cropFactor: 1.0 },
+  [FF_CROP_11]: { coc: 0.026, sensorHeight: 21.6, cropFactor: 1.1 },
+  [S35]: { coc: 0.019, sensorHeight: 15.9, cropFactor: 1.5 },
 };
 
+// Préréglages : boîtier + objectif + réglages typiques (distance en pouces)
 const COMMON_SETUPS: {
   name: string;
+  cameraId: string;
+  lensId: string;
   focalLength: number;
   aperture: number;
   idealDistance: number;
   sensor: string;
 }[] = [
-  {
-    name: "Webcam",
-    focalLength: 3.6,
-    aperture: 2.8,
-    idealDistance: 36,
-    sensor: "Webcam",
-  },
-  {
-    name: "Smartphone",
-    focalLength: 4.3,
-    aperture: 2.0,
-    idealDistance: 36,
-    sensor: "Smartphone",
-  },
-  {
-    name: "APS-C - 35mm",
-    focalLength: 35,
-    aperture: 1.8,
-    idealDistance: 72,
-    sensor: "APS-C",
-  },
-  {
-    name: "FF - 28mm",
-    focalLength: 28,
-    aperture: 1.4,
-    idealDistance: 48,
-    sensor: "35mm (full frame)",
-  },
-  {
-    name: "FF - 35mm",
-    focalLength: 35,
-    aperture: 1.4,
-    idealDistance: 60,
-    sensor: "35mm (full frame)",
-  },
-  {
-    name: "FF - 50mm",
-    focalLength: 50,
-    aperture: 1.8,
-    idealDistance: 72,
-    sensor: "35mm (full frame)",
-  },
-  {
-    name: "FF - 70mm",
-    focalLength: 70,
-    aperture: 2.8,
-    idealDistance: 96,
-    sensor: "35mm (full frame)",
-  },
-  {
-    name: "6x6 - 80mm",
-    focalLength: 80,
-    aperture: 2.8,
-    idealDistance: 90,
-    sensor: "6x6 (Medium Format)",
-  },
-  {
-    name: "6x7 - 80mm",
-    focalLength: 80,
-    aperture: 2.8,
-    idealDistance: 80,
-    sensor: "6x7 (Medium Format)",
-  },
+  { name: "24-105 @ 24 mm f/4 – plan large", cameraId: "sony-a7siii", lensId: "E:Sony:FE 24-105mm F4 G OSS", focalLength: 24, aperture: 4, idealDistance: 118, sensor: FF },
+  { name: "24-105 @ 50 mm f/4 – interview", cameraId: "sony-a7siii", lensId: "E:Sony:FE 24-105mm F4 G OSS", focalLength: 50, aperture: 4, idealDistance: 79, sensor: FF },
+  { name: "24-105 @ 105 mm f/4 – portrait serré", cameraId: "sony-a7siii", lensId: "E:Sony:FE 24-105mm F4 G OSS", focalLength: 105, aperture: 4, idealDistance: 138, sensor: FF },
+  { name: "A7S II + EF 24-105 f/4L (adapté)", cameraId: "sony-a7sii", lensId: "EF:Canon EF (adapté):EF 24-105mm f/4L IS II USM", focalLength: 70, aperture: 4, idealDistance: 98, sensor: FF },
+  { name: "35 mm f/1.4 – vlog / gimbal", cameraId: "sony-a7siii", lensId: "E:Sony:FE 35mm F1.4 GM", focalLength: 35, aperture: 1.4, idealDistance: 47, sensor: FF },
+  { name: "50 mm f/1.8 – interview bokeh", cameraId: "sony-a7siii", lensId: "E:Sony:FE 50mm F1.8", focalLength: 50, aperture: 1.8, idealDistance: 79, sensor: FF },
+  { name: "85 mm f/1.8 – portrait", cameraId: "sony-a7siii", lensId: "E:Sony:FE 85mm F1.8", focalLength: 85, aperture: 1.8, idealDistance: 118, sensor: FF },
+  { name: "24-70 GM II @ 70 f/2.8", cameraId: "sony-a7siii", lensId: "E:Sony:FE 24-70mm F2.8 GM II", focalLength: 70, aperture: 2.8, idealDistance: 98, sensor: FF },
+  { name: "A7S II Super 35 + Sigma 18-35 f/1.8", cameraId: "sony-a7sii", lensId: "E-APSC:Sigma APS-C:18-35mm F1.8 DC HSM Art (EF adapté)", focalLength: 24, aperture: 1.8, idealDistance: 59, sensor: S35 },
+  { name: "A7S III 4K 120p (×1.1) + 24-105", cameraId: "sony-a7siii", lensId: "E:Sony:FE 24-105mm F4 G OSS", focalLength: 35, aperture: 4, idealDistance: 79, sensor: FF_CROP_11 },
 ];
+
+// URL du dépôt GitHub déduite de l'adresse GitHub Pages (utilisateur.github.io/depot)
+const REPO_URL = (() => {
+  try {
+    const host = window.location.hostname;
+    const m = host.match(/^([^.]+)\.github\.io$/);
+    const repo = window.location.pathname.split("/").filter(Boolean)[0];
+    if (m && repo) return `https://github.com/${m[1]}/${repo}`;
+  } catch {
+    /* noop */
+  }
+  return "https://github.com/jherr/depth-of-field";
+})();
 
 const SYSTEMS = ["Metric", "Imperial"] as const;
 
@@ -196,12 +125,12 @@ function clamp(value: number, min: number, max: number) {
 
 function App() {
   const [distanceToSubjectInInches, setDistanceToSubjectInInches] =
-    useState(72);
+    useState(79);
   const [focalLengthInMillimeters, setFocalLengthInMillimeters] = useState(50);
-  const [aperture, setAperture] = useState(1.8);
+  const [aperture, setAperture] = useState(4);
   const [subject, setSubject] = useState("Human");
   const [system, setSystem] = useState<(typeof SYSTEMS)[number]>("Metric");
-  const [sensor, setSensor] = useState("35mm (full frame)");
+  const [sensor, setSensor] = useState(FF);
   const [customSensorWidth, setCustomSensorWidth] = useState(36);
 const [customSensorHeight, setCustomSensorHeight] = useState(24);
 
@@ -215,34 +144,31 @@ const [customSensorHeight, setCustomSensorHeight] = useState(24);
   };
   const sensorName = (k: string) => t.sensors[k] ?? k;
 
-  const [cameraId, setCameraId] = useState("");
-  const [lensId, setLensId] = useState("");
+  const [cameraId, setCameraId] = useState(DEFAULT_CAMERA_ID);
+  const [lensId, setLensId] = useState(DEFAULT_LENS_ID);
   const camera = CAMERAS.find((c) => c.id === cameraId);
   const cameraLenses = lensesForCamera(camera);
   const lens = cameraLenses.find((l) => l.id === lensId);
   const isPrime = !!lens && lens.minFocal === lens.maxFocal;
-  const focalMin = lens && !isPrime ? lens.minFocal : 3;
-  const focalMax = lens && !isPrime ? lens.maxFocal : 400;
-  const apertureMin = lens ? maxApertureAt(lens, focalLengthInMillimeters) : 0.8;
+  const focalMin = lens && !isPrime ? lens.minFocal : 10;
+  const focalMax = lens && !isPrime ? lens.maxFocal : 600;
+  const apertureMin = lens ? maxApertureAt(lens, focalLengthInMillimeters) : 1.2;
 
-  const resetGear = () => {
-    setCameraId("");
-    setLensId("");
-  };
+  const sensorModes = camera ? camera.sensorModes : [FF, S35];
   const selectCamera = (id: string) => {
     setCameraId(id);
     setLensId("");
     const cam = CAMERAS.find((c) => c.id === id);
     if (!cam) return;
-    setSensor(cam.sensor);
-    if (cam.fixedLens) {
-      const first = lensesForCamera(cam)[0];
-      if (first) applyLens(first);
-    }
+    // conserve l'objectif s'il existe sur l'autre boîtier
+    const same = lensesForCamera(cam).find((l) => l.id === lensId);
+    if (same) setLensId(same.id);
+    setSensor((sn) => (cam.sensorModes.includes(sn) ? sn : cam.sensor));
   };
   const applyLens = (l: (typeof cameraLenses)[number]) => {
     setLensId(l.id);
     if (l.sensor) setSensor(l.sensor);
+    else if (lens?.sensor) setSensor(FF);
     const f = clamp(focalLengthInMillimeters, l.minFocal, l.maxFocal);
     setFocalLengthInMillimeters(f);
     if (l.fixedAperture) setAperture(maxApertureAt(l, f));
@@ -257,7 +183,7 @@ const [customSensorHeight, setCustomSensorHeight] = useState(24);
     applyLens(l);
   };
   const focalMarks = (() => {
-    const std = [14, 28, 35, 50, 70, 85, 100, 135, 155, 200];
+    const std = [14, 24, 35, 50, 70, 85, 105, 135, 200, 300, 400, 600];
     if (!lens || isPrime) return std;
     const gap = (focalMax - focalMin) / 10;
     const inner = std.filter(
@@ -360,13 +286,13 @@ const cropFactor = isCustomSensor
   const [iso, setIso] = useState(100);
   const [wbMode, setWbMode] = useState<WbMode>("auto");
   const [wbManualK, setWbManualK] = useState(5500);
-  const [shootMode, setShootMode] = useState<"photo" | "video">("photo");
+  const [shootMode, setShootMode] = useState<"photo" | "video">("video");
   const [vSystem, setVSystem] = useState<VideoSystem>("PAL");
   const [fps, setFps] = useState(25);
   const [vShutter, setVShutter] = useState(1 / 50);
   const [isoAuto, setIsoAuto] = useState(true);
   const isVideo = shootMode === "video";
-  const [ndId, setNdId] = useState("none");
+  const [ndId, setNdId] = useState("ND8");
   const [vndStops, setVndStops] = useState(3);
   const [cplOn, setCplOn] = useState(false);
   const [cplRot, setCplRot] = useState(90);
@@ -386,7 +312,8 @@ const cropFactor = isCustomSensor
   const logProfiles = logProfilesFor(camera);
   const logProfile = logProfiles.find((p) => p.id === profileId);
   const isLog = !!logProfile;
-  const minIso = logProfile ? logProfile.minIso : 100;
+  const minIso = logProfile ? logProfile.minIso : camera?.isoMin ?? 100;
+  const maxIso = camera?.isoMax ?? 409600;
   const shutter = isVideo
     ? vShutter
     : expMode === "A"
@@ -488,6 +415,9 @@ const cropFactor = isCustomSensor
         borderBottom="1px"
         borderColor={borderColor}
       >
+        <Text as="h1" fontWeight="bold" fontSize={{ base: "sm", md: "md" }} mr="auto">
+          Profondeur de champ · Sony A7S II / A7S III
+        </Text>
         <Select
           aria-label={t.language}
           size="sm"
@@ -666,7 +596,6 @@ const cropFactor = isCustomSensor
                   value={cameraId}
                   onChange={(e) => selectCamera(e.target.value)}
                 >
-                  <option value="">— {t.manual} —</option>
                   {BRANDS.map((b) => (
                     <optgroup key={b} label={b}>
                       {CAMERAS.filter((c) => c.brand === b).map((c) => (
@@ -805,7 +734,7 @@ const cropFactor = isCustomSensor
             <Box flexGrow={1}>
               <Flex justify="space-between" align="center">
                 <img src={Fisheye} alt="Fisheye lens" style={{ height: 50 }} />
-                {sensor !== "35mm (full frame)" && (
+                {sensor !== FF && (
                   <Text fontSize="xs" color={mutedText}>
                     {fill(t.fullFrameEq, equivalentFocalLength)}
                   </Text>
@@ -920,21 +849,18 @@ const cropFactor = isCustomSensor
                   _active={nativeSelectStyles._active}
                   sx={nativeSelectStyles.sx}
                   value={sensor}
-                  placeholder={t.sensor}
                   onChange={(evt) => {
                     if (!evt?.target?.value) {
                       return;
                     }
                     setSensor(evt?.target?.value);
-                    resetGear();
                   }}
                 >
-                  {Object.entries(CIRCLES_OF_CONFUSION).map(([key]) => (
+                  {sensorModes.map((key) => (
                     <option key={key} value={key}>
                       {sensorName(key)}
                     </option>
                   ))}
-                  <option value="Custom">{sensorName("Custom")}</option>
                 </Select>
               </Box>
             </Flex>
@@ -1007,11 +933,12 @@ const cropFactor = isCustomSensor
                   variant="outline"
                   colorScheme="blue"
                   onClick={() => {
+                    setCameraId(setup.cameraId);
+                    setLensId(setup.lensId);
                     setFocalLengthInMillimeters(setup.focalLength);
                     setAperture(setup.aperture);
                     setSensor(setup.sensor);
                     setDistanceToSubjectInInches(setup.idealDistance);
-                    resetGear();
                   }}
                 >
                   {setup.name}
@@ -1025,7 +952,7 @@ const cropFactor = isCustomSensor
         <Box pt={2} pb={6} textAlign="center">
           <Button
             as="a"
-            href="https://github.com/jherr/depth-of-field"
+            href={REPO_URL}
             target="_blank"
             rel="noreferrer"
             size="sm"
@@ -1036,6 +963,13 @@ const cropFactor = isCustomSensor
           >
             {t.github}
           </Button>
+          <Text fontSize="xs" color={mutedText} mt={1}>
+            Adapté du{" "}
+            <a href="https://github.com/jherr/depth-of-field" target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>
+              Depth Of Field Simulator
+            </a>{" "}
+            de Jack Herrington (licence MIT)
+          </Text>
         </Box>
       </Box>
       </Box>
@@ -1159,7 +1093,7 @@ const cropFactor = isCustomSensor
                     }}
                     bg={nativeSelectStyles.bg} color={nativeSelectStyles.color} borderColor={nativeSelectStyles.borderColor} iconColor={nativeSelectStyles.iconColor} sx={nativeSelectStyles.sx}>
                     <option value="auto">{t.isoAuto}</option>
-                    {[...new Set([minIso, ...ISOS.filter((v) => v >= minIso)])].map((v) => (
+                    {[...new Set([minIso, ...ISOS.filter((v) => v >= minIso && v <= maxIso)])].map((v) => (
                       <option key={v} value={String(v)}>{v}</option>
                     ))}
                   </Select>
@@ -1195,7 +1129,7 @@ const cropFactor = isCustomSensor
               <Text fontSize="xs" color={mutedText}>ISO</Text>
               <Select size="sm" value={String(Math.max(iso, minIso))} onChange={(e) => setIso(Number(e.target.value))}
                 bg={nativeSelectStyles.bg} color={nativeSelectStyles.color} borderColor={nativeSelectStyles.borderColor} iconColor={nativeSelectStyles.iconColor} sx={nativeSelectStyles.sx}>
-                {[...new Set([minIso, ...ISOS.filter((v) => v >= minIso)])].map((v) => (
+                {[...new Set([minIso, ...ISOS.filter((v) => v >= minIso && v <= maxIso)])].map((v) => (
                   <option key={v} value={String(v)}>{v}</option>
                 ))}
               </Select>
