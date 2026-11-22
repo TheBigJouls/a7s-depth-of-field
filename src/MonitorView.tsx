@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { Box, Text, useColorModeValue } from "@chakra-ui/react";
 import { SUBJECTS } from "./PhotographyGraphic";
 import type { ScenePalette } from "./lighting";
+import { PersonIllustration } from "./PersonIllustration";
 
 // Simulated "what the photographer sees on the camera monitor".
 // World units are inches, distances measured from the camera.
@@ -304,7 +305,7 @@ export default function MonitorView({
                   fill="#2d2a32"
                 >
                   <g ref={subjRef}>
-                    <SubjectGraphic />
+                    {subject === "Human" ? <PersonIllustration /> : <SubjectGraphic />}
                   </g>
                 </g>
               </g>
